@@ -7,11 +7,11 @@ ad "str r0, [r1, 0x74]" 4867
 a "blx lr" f047
 a "bl -0x2a" fff7e9ff
 d "bl 0xffffffd6" fff7e9ff
-ad "mov fp, r1" 8b46
+ad "mov fp, r1" 8b46 0x0 (set r11 (var r1))
 a "mov r9, r1" 8946
-ad "mov sb, r1" 8946
-a "mov r4, r1" 0c46
-ad "add sp, 0x10" 04b0
+ad "mov sb, r1" 8946 0x0 (set r9 (var r1))
+ad "mov r4, r1" 0c46 0x0 (set r4 (var r1))
+ad "add sp, 0x10" 04b0 0x0 (set sp (+ (var sp) (bv 32 0x10)))
 a "add sp, 0x16" 0df1160d
 a "add ip, 0x26" 0cf1260c
 #a "add r7, 0xaa" 07f1aa07
@@ -19,7 +19,7 @@ a "sub sp, 0x30" 8cb0
 a "sub ip, 0x33" acf1330c
 #a "sub r4, 0x69" a4f16904
 a "sub r8, 0xf9" a8f1f908
-ad "adc r0, r1, 0x7b" 41f17b00
+ad "adc r0, r1, 0x7b" 41f17b00 0x0 (set r0 (+ (+ (var r1) (bv 32 0x7b)) (ite (var cf) (bv 32 0x1) (bv 32 0x0))))
 ad "adc r0, r1, 0xaf00af" 41f1af10
 ad "adc r0, r1, -0x47ff4800" 41f1b820 # -0xb800b800
 ad "adc r0, r1, 0x26262626" 41f12630
@@ -27,9 +27,9 @@ ad "adc r0, r1, 0x8f0000" 41f50f00
 ad "adc r0, r1, 0x1360000" 41f19b70
 ad "adc r0, r1, 0x3800" 41f56050
 ad "adc sl, fp, 0xfb" 4bf1fb0a
-ad "adcs fp, ip, 0xa" 5cf10a0b
+ad "adcs fp, ip, 0xa" 5cf10a0b 0x0 (seq (set a (var r12)) (set b (bv 32 0xa)) (set r11 (+ (+ (var r12) (bv 32 0xa)) (ite (var cf) (bv 32 0x1) (bv 32 0x0)))) (set cf (msb (+ (+ (cast 33 false (var a)) (cast 33 false (var b))) (ite (var cf) (bv 33 0x1) (bv 33 0x0))))) (set vf (&& (! (^^ (msb (var a)) (msb (var b)))) (^^ (msb (var a)) (msb (var r11))))) (set zf (is_zero (var r11))) (set nf (msb (var r11))))
 a "adc r2, 0x1f" 42f11f02
-d "adc r2, r2, 0x1f" 42f11f02
+d "adc r2, r2, 0x1f" 42f11f02 0x0 (set r2 (+ (+ (var r2) (bv 32 0x1f)) (ite (var cf) (bv 32 0x1) (bv 32 0x0))))
 ad "adcs r6, r7" 7e41
 a "adc r2, r1, r2" 41eb0202
 d "adc.w r2, r1, r2" 41eb0202
@@ -92,7 +92,7 @@ d "addw r8, pc, 0xa23" 0ff62328
 a "adr r8, 0xa23" 0ff62328
 d "addw r3, pc, 0x24" 0ff22403
 a "adr.w r3, 0x24" 0ff22403
-d "adds r6, r2, 5" 561d
+d "adds r6, r2, 5" 561d 0x0 (seq (set a (var r2)) (set b (bv 32 0x5)) (set r6 (+ (var r2) (bv 32 0x5))) (set cf (msb (+ (cast 33 false (var a)) (cast 33 false (var b))))) (set vf (&& (! (^^ (msb (var a)) (msb (var b)))) (^^ (msb (var a)) (msb (var r6))))) (set zf (is_zero (var r6))) (set nf (msb (var r6))))
 a "add r6, r2, 5" 561d
 d "adds r7, 0xc3" c337
 a "add r7, 0xc3" c337
@@ -105,11 +105,11 @@ d "addw r3, r3, 0xb39" 03f63933
 a "add r3, 0xb39" 03f63933
 d "addw sb, r2, 0xca" 02f2ca09
 a "addw r9, r2, 0xca" 02f2ca09
-d "adds r6, r2, r1" 5618
+d "adds r6, r2, r1" 5618 0x0 (seq (set a (var r2)) (set b (var r1)) (set r6 (+ (var r2) (var r1))) (set cf (msb (+ (cast 33 false (var a)) (cast 33 false (var b))))) (set vf (&& (! (^^ (msb (var a)) (msb (var b)))) (^^ (msb (var a)) (msb (var r6))))) (set zf (is_zero (var r6))) (set nf (msb (var r6))))
 a "add r6, r2, r1" 5618
 d "adds r2, r2, r4" 1219
 a "add r2, r4" 1219
-d "add sb, r6" b144
+d "add sb, r6" b144 0x0 (set r9 (+ (var r9) (var r6)))
 a "add r9, r6" b144
 d "add.w sb, r2, r6" 02eb0609
 a "add r9, r2, r6" 02eb0609
@@ -442,7 +442,7 @@ d "mla r6, r2, sl, sp" 02fb0ad6
 a "mla r6, r2, r10, r13" 02fb0ad6
 d "mls r6, sl, r2, r5" 0afb1256
 a "mls r6, r10, r2, r5" 0afb1256
-d "movs r6, 0x26" 2626
+d "movs r6, 0x26" 2626 0x0 (seq (set r6 (bv 32 0x26)) (set zf (is_zero (bv 32 0x26))) (set nf (msb (bv 32 0x26))))
 a "mov r6, 0x26" 2626
 d "mov.w r7, -0x4dff4e00" 4ff0b227 # 0xb200b200
 a "mov r7, 0xb200b200" 4ff0b227
@@ -450,11 +450,11 @@ d "movs.w fp, 0x130000" 5ff4981b
 a "movs r11, 0x00130000" 5ff4981b
 ad "mov.w r2, 0x2b" 4ff02b02
 ad "movw r6, 0x248f" 42f28f46
-d "mov sb, ip" e146
+d "mov sb, ip" e146 0x0 (set r9 (var r12))
 a "mov r9, r12" e146
-ad "movs r6, r2" 1600
+ad "movs r6, r2" 1600 0x0 (seq (set r6 (var r2)) (set zf (is_zero (var r2))) (set nf (msb (var r2))))
 d "movs.w r3, ip" 5fea0c03
-a "movs r3, r12" 5fea0c03
+a "movs r3, r12" 5fea0c03 0x0 (seq (set r3 (var r12)) (set zf (is_zero (var r12))) (set nf (msb (var r12))))
 ad "movs.w r2, r3" 5fea0302
 d "mov.w ip, r5" 4fea050c
 a "mov.w r12, r5" 4fea050c
