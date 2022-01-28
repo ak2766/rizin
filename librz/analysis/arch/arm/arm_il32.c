@@ -77,6 +77,7 @@ static RzILOpBitVector *read_reg(ut64 addr, arm_reg reg) {
 
 #define REG(n) read_reg(insn->address, REGID(n))
 #define MEMBASE(x)  read_reg(insn->address, insn->detail->arm.operands[x].mem.base)
+#define MEMINDEX(x) read_reg(insn->address, insn->detail->arm.operands[x].mem.index)
 
 /**
  * IL to write the given capstone reg
@@ -127,6 +128,25 @@ static RZ_NULLABLE RzILOpBool *cond(arm_cc c) {
 	}
 }
 
+static RZ_NULLABLE RzILOpBitVector *shift(RzILOpBitVector *val, arm_shifter type, ut8 dist) {
+	switch (type) {
+	case ARM_SFT_ASR:
+		return SHIFTRA(val, UN(5, dist));
+	case ARM_SFT_LSL:
+		return SHIFTL0(val, UN(5, dist));
+	case ARM_SFT_LSR:
+		return SHIFTR0(val, UN(5, dist));
+	case ARM_SFT_ROR:
+		return LOGOR(
+			SHIFTR0(val, UN(5, dist)),
+			SHIFTL0(DUP(val), UN(5, 32 - dist)));
+	case ARM_SFT_RRX:
+		return SHIFTR(VARG("cf"), val, UN(5, 1));
+	default:
+		return val;
+	}
+}
+
 /**
  * IL to retrieve the value of the \p n -th arg of \p insn
  * \p carry_out filled with the carry value of NULL if it does not change
@@ -136,7 +156,8 @@ static RzILOpBitVector *arg(cs_insn *insn, int n, RZ_NULLABLE RzILOpBool **carry
 	if (carry_out) {
 		*carry_out = NULL;
 	}
-	switch (insn->detail->arm.operands[n].type) {
+	cs_arm_op *op = &insn->detail->arm.operands[n];
+	switch (op->type) {
 	case ARM_OP_REG:
 		r = REG(n);
 #if 0
@@ -164,6 +185,19 @@ static RzILOpBitVector *arg(cs_insn *insn, int n, RZ_NULLABLE RzILOpBool **carry
 			}
 		}
 		return U32(imm);
+	}
+	case ARM_OP_MEM: {
+		RzILOpBitVector *addr = MEMBASE(n);
+		int disp = MEMDISP(n);
+		if (disp > 0) {
+			addr = ADD(addr, U32(disp));
+		} else if (disp < 0) {
+			addr = SUB(addr, U32(-disp));
+		}
+		if (op->mem.index != ARM_REG_INVALID) {
+			addr = ADD(addr, shift(MEMINDEX(n), op->shift.type, op->shift.value));
+		}
+		return addr;
 	}
 	default:
 		break;
@@ -281,12 +315,9 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 	if (!ISREG(0) || !ISMEM(1)) {
 		return NULL;
 	}
-	RzILOpBitVector *addr = MEMBASE(1);
-	int disp = MEMDISP(1); // TODO: can there be RRX with influence by carry?
-	if (disp > 0) {
-		addr = ADD(addr, U32(disp));
-	} else if (disp < 0) {
-		addr = SUB(addr, U32(-disp));
+	RzILOpBitVector *addr = ARG(1);
+	if (!addr) {
+		return NULL;
 	}
 	// TODO: writeback
 	RzILOpBitVector *data = LOADW(32, addr);
