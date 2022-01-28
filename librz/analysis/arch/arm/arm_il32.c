@@ -76,6 +76,7 @@ static RzILOpBitVector *read_reg(ut64 addr, arm_reg reg) {
 }
 
 #define REG(n) read_reg(insn->address, REGID(n))
+#define MEMBASE(x)  read_reg(insn->address, insn->detail->arm.operands[x].mem.base)
 
 /**
  * IL to write the given capstone reg
@@ -272,6 +273,29 @@ static RzILOpEffect *add(cs_insn *insn) {
 	return set;
 }
 
+/**
+ * Capstone: ARM_INS_LDR
+ * ARM: ldr
+ */
+static RzILOpEffect *ldr(cs_insn *insn) {
+	if (!ISREG(0) || !ISMEM(1)) {
+		return NULL;
+	}
+	RzILOpBitVector *addr = MEMBASE(1);
+	int disp = MEMDISP(1); // TODO: can there be RRX with influence by carry?
+	if (disp > 0) {
+		addr = ADD(addr, U32(disp));
+	} else if (disp < 0) {
+		addr = SUB(addr, U32(-disp));
+	}
+	// TODO: writeback
+	RzILOpBitVector *data = LOADW(32, addr);
+	if (REGID(0) == ARM_REG_PC) {
+		return JMP(data);
+	}
+	return write_reg(REGID(0), data);
+}
+
 static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 	switch (insn->id) {
 	case ARM_INS_B: {
@@ -282,6 +306,8 @@ static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 	case ARM_INS_ADD:
 	case ARM_INS_ADC:
 		return add(insn);
+	case ARM_INS_LDR:
+		return ldr(insn);
 	}
 	default:
 		return NULL;

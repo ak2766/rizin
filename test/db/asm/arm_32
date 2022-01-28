@@ -307,3 +307,5 @@ a "ldr r0, [r0]" 000090e5
 a "ldr r1, [r2]" 001092e5
 a "str r0, [r0]" 000080e5
 a "str r1, [r2]" 001082e5
+d "ldr r2, [fp, -0xc]" 0c201be5 0x200 (set r2 (loadw 0 32 (- (var r11) (bv 32 0xc))))
+ad "ldr r1, [r7]" 001097e5 0x200 (set r1 (loadw 0 32 (var r7)))

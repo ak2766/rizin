@@ -291,8 +291,8 @@ d "ldm.w r2!, {r3, r4, r5, r6, r7, r8, sb, sl, ip}" b2e8f817
 a "ldm r2!, {r3-r10, r12}" b2e8f817
 d "ldm.w r3, {r1, r2, r5}" 93e82600
 a "ldm.w r3, {r1-r2, r5}" 93e82600
-ad "ldr r6, [r2, 0x54]" 566d
-ad "ldr r3, [sp, 0x348]" d29b
+ad "ldr r6, [r2, 0x54]" 566d 0x0 (set r6 (loadw 0 32 (+ (var r2) (bv 32 0x54))))
+ad "ldr r3, [sp, 0x348]" d29b 0x0 (set r3 (loadw 0 32 (+ (var sp) (bv 32 0x348))))
 d "ldr.w r8, [sb, 0xbf3]" d9f8f38b
 a "ldr r8, [r9, 0xbf3]" d9f8f38b
 ad "ldr.w r2, [r1, 0x18]" d1f81820
