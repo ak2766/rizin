@@ -76,9 +76,10 @@
 #define ULT(x, y)  rz_il_op_new_ult(x, y)
 #define ULE(x, y)  rz_il_op_new_ule(x, y)
 
-#define LOAD(addr)       rz_il_op_new_load(0, addr)
-#define LOADW(n, addr)   rz_il_op_new_loadw(0, addr, n)
-#define STORE(addr, val) rz_il_op_new_store(0, addr, val)
+#define LOAD(addr)        rz_il_op_new_load(0, addr)
+#define LOADW(n, addr)    rz_il_op_new_loadw(0, addr, n)
+#define STORE(addr, val)  rz_il_op_new_store(0, addr, val)
+#define STOREW(addr, val) rz_il_op_new_storew(0, addr, val)
 
 #define VARG(name)    rz_il_op_new_var(name, RZ_IL_VAR_KIND_GLOBAL)
 #define VARL(name)    rz_il_op_new_var(name, RZ_IL_VAR_KIND_LOCAL)

@@ -327,6 +327,28 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 	return write_reg(REGID(0), data);
 }
 
+/**
+ * Capstone: ARM_INS_STR
+ * ARM: str
+ */
+static RzILOpEffect *str(cs_insn *insn) {
+	if (!ISREG(0) || !ISMEM(1)) {
+		return NULL;
+	}
+	RzILOpBitVector *addr = ARG(1);
+	if (!addr) {
+		return NULL;
+	}
+	RzILOpBitVector *val = ARG(0);
+	if (!val) {
+		rz_il_op_pure_free(addr);
+		return NULL;
+	}
+	RzILOpEffect *eff = STOREW(addr, val);
+	// TODO: writeback
+	return eff;
+}
+
 static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 	switch (insn->id) {
 	case ARM_INS_B: {
@@ -339,6 +361,8 @@ static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 		return add(insn);
 	case ARM_INS_LDR:
 		return ldr(insn);
+	case ARM_INS_STR:
+		return str(insn);
 	}
 	default:
 		return NULL;
