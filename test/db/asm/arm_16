@@ -3,7 +3,7 @@
 #a "ldr r0, [r0, 0x74]" 406f
 #a "ldr r0, [r0, 0x7]" d0f80700
 #a "ldr r1, [r2, 0x124]" d2f82411
-ad "str r0, [r1, 0x74]" 4867
+ad "str r0, [r1, 0x74]" 4867 0x0 (storew 0 (+ (var r1) (bv 32 0x74)) (var r0))
 a "blx lr" f047
 a "bl -0x2a" fff7e9ff
 d "bl 0xffffffd6" fff7e9ff
@@ -851,7 +851,7 @@ a "str r9, [r8, r10]" 48f80a90
 d "str.w r6, [r5, r3, lsl 3]" 45f83360
 a "str r6, [r5, r3, lsl 3]" 45f83360
 ad "str.w r2, [r1, r3]" 41f80320
-ad "strb r2, [r3, 0x15]" 5a75
+ad "strb r2, [r3, 0x15]" 5a75 0x0 (store 0 (+ (var r3) (bv 32 0x15)) (cast 8 false (var r2)))
 d "strb.w sb, [r8, 0x572]" 88f87295
 a "strb r9, [r8, 0x572]" 88f87295
 ad "strb.w r1, [r2, 0x1f]" 82f81f10
@@ -881,7 +881,7 @@ a "strexb r9, r2, [r5]" c5e8492f
 d "strexd sb, r2, r5, [r1]" c1e87925
 a "strexd r9, r2, r5, [r1]" c1e87925
 ad "strexh r3, r5, [r2]" c2e8535f
-ad "strh r4, [r2, 0x34]" 9486
+ad "strh r4, [r2, 0x34]" 9486 0x0 (storew 0 (+ (var r2) (bv 32 0x34)) (cast 16 false (var r4)))
 d "strh.w sb, [r3, 0x753]" a3f85397
 a "strh r9, [r3, 0x753]" a3f85397
 ad "strh.w r2, [r1, 0x18]" a1f81820

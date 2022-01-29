@@ -328,8 +328,8 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 }
 
 /**
- * Capstone: ARM_INS_STR
- * ARM: str
+ * Capstone: ARM_INS_STR, ARM_INS_STRB, ARM_INS_STRH
+ * ARM: str, strb, strh
  */
 static RzILOpEffect *str(cs_insn *insn) {
 	if (!ISREG(0) || !ISMEM(1)) {
@@ -344,7 +344,18 @@ static RzILOpEffect *str(cs_insn *insn) {
 		rz_il_op_pure_free(addr);
 		return NULL;
 	}
-	RzILOpEffect *eff = STOREW(addr, val);
+	RzILOpEffect *eff;
+	switch (insn->id) {
+	case ARM_INS_STRB:
+		eff = STORE(addr, UNSIGNED(8, val));
+		break;
+	case ARM_INS_STRH:
+		eff = STOREW(addr, UNSIGNED(16, val));
+		break;
+	default: // ARM_INS_STR
+		eff = STOREW(addr, val);
+		break;
+	}
 	// TODO: writeback
 	return eff;
 }
@@ -362,6 +373,8 @@ static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 	case ARM_INS_LDR:
 		return ldr(insn);
 	case ARM_INS_STR:
+	case ARM_INS_STRB:
+	case ARM_INS_STRH:
 		return str(insn);
 	}
 	default:
