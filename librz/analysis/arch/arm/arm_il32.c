@@ -308,8 +308,8 @@ static RzILOpEffect *add(cs_insn *insn) {
 }
 
 /**
- * Capstone: ARM_INS_LDR
- * ARM: ldr
+ * Capstone: ARM_INS_LDR, ARM_INS_LDRB, ARM_INS_LDRH
+ * ARM: ldr, ldrb, ldrh
  */
 static RzILOpEffect *ldr(cs_insn *insn) {
 	if (!ISREG(0) || !ISMEM(1)) {
@@ -320,7 +320,18 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 		return NULL;
 	}
 	// TODO: writeback
-	RzILOpBitVector *data = LOADW(32, addr);
+	RzILOpBitVector *data;
+	switch (insn->id) {
+	case ARM_INS_LDRB:
+		data = UNSIGNED(32, LOAD(addr));
+		break;
+	case ARM_INS_LDRH:
+		data = UNSIGNED(32, LOADW(16, addr));
+		break;
+	default: // ARM_INS_LDR
+		data = LOADW(32, addr);
+		break;
+	}
 	if (REGID(0) == ARM_REG_PC) {
 		return JMP(data);
 	}
@@ -371,6 +382,8 @@ static RzILOpEffect *il_unconditional(csh *handle, cs_insn *insn, bool thumb) {
 	case ARM_INS_ADC:
 		return add(insn);
 	case ARM_INS_LDR:
+	case ARM_INS_LDRB:
+	case ARM_INS_LDRH:
 		return ldr(insn);
 	case ARM_INS_STR:
 	case ARM_INS_STRB:

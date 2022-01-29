@@ -316,3 +316,5 @@ d "ldr r0, [r1, r4, lsr 5]" a40291e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (>> (va
 d "ldr r0, [r1, r4, asr 5]" c40291e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (>> (var r4) (bv 5 0x5) (msb (var r4))))))
 d "ldr r0, [r1, r4, ror 5]" e40291e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (| (>> (var r4) (bv 5 0x5) false) (<< (var r4) (bv 5 0x1b) false)))))
 d "ldr r0, [r1, r4, rrx]" 640091e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (>> (var r4) (bv 5 0x1) (var cf)))))
+d "ldrb r2, [r3]" 0020d3e5 0x0 (set r2 (cast 32 false (load 0 (var r3))))
+d "ldrh r0, [r1]" b000d1e1 0x0 (set r0 (cast 32 false (loadw 0 16 (var r1))))
