@@ -300,7 +300,7 @@ d "ldr sb, [sl, -0x53]" 5af8539c
 a "ldr r9, [r10, -0x53]" 5af8539c
 d "ldr r3, [fp], 0xab" 5bf8ab3b
 a "ldr r3, [r11], 0xab" 5bf8ab3b
-ad "ldr r8, [r2, -0x18]!" 52f8188d
+ad "ldr r8, [r2, -0x18]!" 52f8188d 0x0 (seq (set r2 (- (var r2) (bv 32 0x18))) (set r8 (loadw 0 32 (var r2))))
 d "ldr r4, [pc, 0x144]" 514c
 a "ldr r4, 0x144" 514c
 d "ldr.w r8, [pc, 0x342]" dff84283
@@ -321,7 +321,7 @@ ad "ldrb.w r2, [r1, 0xb]" 91f80b20
 ad "ldrb r6, [r8, -0x3b]" 18f83b6c
 d "ldrb r2, [r3], 0x58" 13f8582b
 a "ldrb r2, [r3], +0x58" 13f8582b
-d "ldrb r6, [sb, -0xab]!" 19f8ab6d
+d "ldrb r6, [sb, -0xab]!" 19f8ab6d 0x0 (seq (set r9 (- (var r9) (bv 32 0xab))) (set r6 (cast 32 false (load 0 (var r9)))))
 a "ldrb r6, [r9, -0xab]!" 19f8ab6d
 d "ldrb.w sb, [pc, 0x62a]" 9ff82a96
 a "ldrb r9, 0x62a" 9ff82a96

@@ -67,17 +67,17 @@ static const char *reg_var_name(arm_reg reg) {
 /**
  * IL to read the given capstone reg
  */
-static RzILOpBitVector *read_reg(ut64 addr, arm_reg reg) {
+static RzILOpBitVector *read_reg(ut64 pc, arm_reg reg) {
 	if (reg == ARM_REG_PC) {
-		return U32(addr);
+		return U32(pc);
 	}
 	const char *var = reg_var_name(reg);
 	return var ? VARG(var) : NULL;
 }
 
-#define REG(n) read_reg(insn->address, REGID(n))
-#define MEMBASE(x)  read_reg(insn->address, insn->detail->arm.operands[x].mem.base)
-#define MEMINDEX(x) read_reg(insn->address, insn->detail->arm.operands[x].mem.index)
+#define REG(n) read_reg(insn->address + insn->size, REGID(n))
+#define MEMBASE(x)  read_reg(insn->address + insn->size, insn->detail->arm.operands[x].mem.base)
+#define MEMINDEX(x) read_reg(insn->address + insn->size, insn->detail->arm.operands[x].mem.index)
 
 /**
  * IL to write the given capstone reg
@@ -319,7 +319,14 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 	if (!addr) {
 		return NULL;
 	}
-	// TODO: writeback
+	RzILOpEffect *writeback_eff = NULL;
+	if (insn->detail->arm.writeback) {
+		arm_reg base = insn->detail->arm.operands[1].mem.base;
+		writeback_eff = write_reg(base, addr);
+		if (writeback_eff) {
+			addr = MEMBASE(1);
+		}
+	}
 	RzILOpBitVector *data;
 	switch (insn->id) {
 	case ARM_INS_LDRB:
@@ -332,10 +339,16 @@ static RzILOpEffect *ldr(cs_insn *insn) {
 		data = LOADW(32, addr);
 		break;
 	}
+	RzILOpEffect *eff;
 	if (REGID(0) == ARM_REG_PC) {
-		return JMP(data);
+		eff = JMP(data);
+	} else {
+		eff = write_reg(REGID(0), data);
 	}
-	return write_reg(REGID(0), data);
+	if (writeback_eff) {
+		return SEQ2(writeback_eff, eff);
+	}
+	return eff;
 }
 
 /**

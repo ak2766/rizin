@@ -117,7 +117,7 @@ d "addeq r1, r1, r0" 00108100 0x0 (branch (var zf) (set r1 (+ (var r1) (var r0))
 d "addeq r1, r1, r2, lsl 2" 02118100
 d "addne r1, r1, ip" 0c108110 0x0 (branch (! (var zf)) (set r1 (+ (var r1) (var r12))) nop)
 d "addne r1, r1, r0, lsl 2" 00118110
-ad "add pc, pc, 0x10" 10f08fe2 0x200 (jmp (+ (bv 32 0x200) (bv 32 0x10)))
+ad "add pc, pc, 0x10" 10f08fe2 0x200 (jmp (+ (bv 32 0x204) (bv 32 0x10)))
 ad "adc r0, r1, 0x2a" 2a00a1e2 0x0 (set r0 (+ (+ (var r1) (bv 32 0x2a)) (ite (var cf) (bv 32 0x1) (bv 32 0x0))))
 d "adcs r0, r1, 0x2a" 2a00b1e2 0x0 (seq (set a (var r1)) (set b (bv 32 0x2a)) (set r0 (+ (+ (var r1) (bv 32 0x2a)) (ite (var cf) (bv 32 0x1) (bv 32 0x0)))) (set cf (msb (+ (+ (cast 33 false (var a)) (cast 33 false (var b))) (ite (var cf) (bv 33 0x1) (bv 33 0x0))))) (set vf (&& (! (^^ (msb (var a)) (msb (var b)))) (^^ (msb (var a)) (msb (var r0))))) (set zf (is_zero (var r0))) (set nf (msb (var r0))))
 ad "adds r0, r1, 0x2a" 2a0091e2 0x0 (seq (set a (var r1)) (set b (bv 32 0x2a)) (set r0 (+ (var r1) (bv 32 0x2a))) (set cf (msb (+ (cast 33 false (var a)) (cast 33 false (var b))))) (set vf (&& (! (^^ (msb (var a)) (msb (var b)))) (^^ (msb (var a)) (msb (var r0))))) (set zf (is_zero (var r0))) (set nf (msb (var r0))))
@@ -318,3 +318,6 @@ d "ldr r0, [r1, r4, ror 5]" e40291e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (| (>> 
 d "ldr r0, [r1, r4, rrx]" 640091e7 0x0 (set r0 (loadw 0 32 (+ (var r1) (>> (var r4) (bv 5 0x1) (var cf)))))
 d "ldrb r2, [r3]" 0020d3e5 0x0 (set r2 (cast 32 false (load 0 (var r3))))
 d "ldrh r0, [r1]" b000d1e1 0x0 (set r0 (cast 32 false (loadw 0 16 (var r1))))
+d "ldr r6, [pc, 0x48]" 48609fe5 0x10660 (set r6 (loadw 0 32 (+ (bv 32 0x10664) (bv 32 0x48))))
+d "ldr r2, [fp, -0x10]!" 10203be5 0x0 (seq (set r11 (- (var r11) (bv 32 0x10))) (set r2 (loadw 0 32 (var r11))))
+d "str fp, [sp, -4]!" 04b02de5 # TODO
